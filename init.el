@@ -97,14 +97,17 @@
                          ("gnu" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
 
-;; Install gnu-elpa-keyring-update to ensure valid keys for signed packages.
+;; Install gnu-elpa-keyring-update with signature checking *disabled*:
+;; that package is itself signed with the very GNU EDDSA key it ships,
+;; so verifying it needs a keyring that only it can provide (chicken and
+;; egg).  `allow-unsigned' is not enough here -- it still verifies
+;; packages that *have* a signature, and this one does.  After it is in
+;; place, re-enable checking so later GNU ELPA installs are verified while
+;; unsigned MELPA packages still install (`allow-unsigned').
 (unless (package-installed-p 'gnu-elpa-keyring-update)
-  (package-refresh-contents)
-  (package-install 'gnu-elpa-keyring-update))
-
-;; `allow-unsigned' keeps accepting MELPA packages (unsigned) while still
-;; verifying GNU ELPA signatures when the keyring is present.
-;; Setting this to `t' would reject every MELPA install.
+  (let ((package-check-signature nil))
+    (package-refresh-contents)
+    (package-install 'gnu-elpa-keyring-update)))
 
 ;; Bootstrap use-package.  Install it from ELPA when it is not installed
 ;; yet -- and BEFORE any require: the ELPA copy (2.4.6) supports the `:vc'

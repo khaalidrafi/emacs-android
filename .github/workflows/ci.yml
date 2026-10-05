@@ -18,10 +18,20 @@ jobs:
         with:
           version: 30.1
 
-      - name: Install TDLib and dependencies
+      - name: Build and install TDLib from source
         run: |
           sudo apt-get update
-          sudo apt-get install -y libtd-dev pkg-config make libssl-dev zlib1g-dev
+          sudo apt-get install -y gperf cmake libssl-dev zlib1g-dev php-cli git build-essential pkg-config
+          git clone https://github.com/tdlib/td.git
+          cd td
+          git checkout ea97bcdd3
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+          cmake --build . --target prepare_cross_compiling
+          cd ..
+          php SplitSource.php
+          cd build
+          cmake --build . --target install
 
       - name: Validate Emacs Configuration Batch Load
         run: |
