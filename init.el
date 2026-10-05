@@ -88,14 +88,22 @@
                   gc-cons-percentage 0.1)))
 
 ;; ---------------------------------------------------------------------------
-;; 3. Package system
+;; 3. Package system & signature verification
 ;; ---------------------------------------------------------------------------
 (require 'package)
 (setq package-enable-at-startup nil
-      package-check-signature nil
+      package-check-signature 'allow-unsigned
       package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
+
+;; Install gnu-elpa-keyring-update to ensure valid keys for signed packages.
+(unless (package-installed-p 'gnu-elpa-keyring-update)
+  (package-refresh-contents)
+  (package-install 'gnu-elpa-keyring-update))
+
+;; Fully enforce signature checking once keyring is present.
+(setq package-check-signature t)
 
 ;; Bootstrap use-package.  Install it from ELPA when it is not installed
 ;; yet -- and BEFORE any require: the ELPA copy (2.4.6) supports the `:vc'
