@@ -92,6 +92,7 @@
 ;; ---------------------------------------------------------------------------
 (require 'package)
 (setq package-enable-at-startup nil
+      package-check-signature nil
       package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
