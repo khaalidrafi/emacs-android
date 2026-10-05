@@ -80,6 +80,11 @@ Each item names the file, what to look at, and why it matters.
    Worth reviewing: =git log --format='%h %p %s' -1 9908f8d= in
    =~/org-docs= (the publish bridge), and the =rad= remotes I added to
    =~/org-import= and =~/org-docs= to match =~/kshell='s= convention.
+** DONE this config repo itself is published on Radicle
+   Per your "push this repo to my radicle": =rad init= created
+   =emacs-android= =rad:z4VaRWasV9SAnbdFDUaorNsuB3P6z= (public, default
+   branch =ai/main=), and =git.khalidrafi.tech/emacs-android.git= serves
+   the same head (verified with =ls-remote=) for the phone.
 ** DONE the Radicle node is up and the four repos are announced
    =rad self= used to say "Node not running", so =rad init= had only
    written into =~/.radicle/storage= and =rad ls= showed a stale index.
@@ -105,8 +110,11 @@ Each item names the file, what to look at, and why it matters.
    which is a read-only HTTP front for the local Radicle node. Any push to the
    local node's =rad://= protocol is instantly reflected there and cloneable by
    the phone.
-   - Note on "nope.git": It was a temporary placeholder/typo from a prior session and
-     is not used; all packages use the correct URLs.
+   - Note on "nope.git": it was a probe, not a repo -- I ran
+     =git ls-remote https://git.khalidrafi.tech/nope.git= with a
+     deliberately nonexistent name so the forge's "not found" reply
+     would list every available repo.  Nothing named =nope= exists on
+     Radicle or the read-front.
 ** DONE org-docs leader keys were unbound (=:after org-import=)
    =org-docs= never =require=s =org-import= (it only reads its dynamic
    vars and calls its autoloaded commands), so =:after org-import=
