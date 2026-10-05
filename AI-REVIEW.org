@@ -78,12 +78,24 @@ Each item names the file, what to look at, and why it matters.
      separate =cd8de25 "init"=.  So the current code cannot fast-forward
      either identity; it needs a third identity, or a merge of unrelated
      histories.  Your call.
-** TODO the Radicle node is stopped, so nothing is announced yet
-   =rad self= says "Node not running"; =rad ls= shows a stale index and
-   the two new repos only live in =~/.radicle/storage=.  Run
-   =rad node start= (it then announces on its own -- =rad init= told us
-   "will be announced to the network when you start your node"), and
-   =rad publish <rid>= per repo if they stay invisible.
+** DONE the Radicle node is up and the three repos are announced
+   =rad self= used to say "Node not running", so =rad init= had only
+   written into =~/.radicle/storage= and =rad ls= showed a stale index.
+   Started the node (=rad node start= prints "node failed to start" even
+   though the daemon does come up; trust =rad node status= instead -- the
+   =radicle-node= process sits around 27 MB).  Then:
+   - =rad seed <rid> <rid>= for =agent-connect= and =telega-lite=, which
+     =rad init --no-seed= had deliberately skipped.  Both now appear in
+     =rad node inventory= and in =rad ls= at their right heads (=81e3b65=,
+     =f550678=).
+   - =org-import= (=rad:z4W8dVth...=) was already seeded with scope
+     =all=, and the log shows public seeds fetching it from this node.
+   - =rad publish <rid>= is not needed: it answers "repository is already
+     public" and points at =rad sync --inventory= for announcing.
+   Still open: the two =org-docs= identities are unchanged
+   (=e93062f= and the Gitea HEAD =a6e1db0=), pending your call.  Unrelated
+   noise in every =rad= command: one stored repo has no identity document
+   (=rad:z3reKtLUZtzsxPHRQ4QYiTj5YrTQD=), hence the =WARN storage= line.
 ** TODO a phone cannot clone =rad://= as things stand
    =package-vc= shells out to =git clone=, and =git clone rad://...= needs
    =git-remote-rad= *plus a reachable node* on Termux -- neither is
