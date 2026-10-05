@@ -1,124 +1,19 @@
-;;; khalid-org.el --- Org GTD core for Android  -*- lexical-binding: t -*-
+;;; khalid-org.el --- Org for Android  -*- lexical-binding: t -*-
 
 ;; -*- mode: emacs-lisp; lexical-binding: t -*-
 
-;; Trimmed port of the PC personal/khalid-org.el: the GTD core (capture
-;; templates, custom agenda commands, agenda file list, "o..." leader keys).
-;; Dropped on purpose (heavy or PC-only): org-roam, org-pomodoro,
-;; org-alert/habit-stats, activitywatch views ("oy"/"ov"), the "c" contacts
-;; capture template (needs org-contacts), org-appear (kept off android on
-;; the PC too).
+;; Trimmed port of the PC personal/khalid-org.el with the GTD layer taken
+;; out: no capture templates, no custom agenda commands, no ~/org/gtd/
+;; agenda-file list.  What remains is plain Org behaviour, the org-docs
+;; reader, and the Android-only bits (tel: dialing, org-contacts helpers).
+;; Also still dropped as before (heavy or PC-only): org-roam,
+;; org-pomodoro, org-alert/habit-stats, activitywatch views, the "c"
+;; contacts capture template, org-appear.
 
 ;;; Code:
 
-;; =================
-;; GTD CORE CONFIGURATION
 ;; ====================
-
-(defvar org-gtd-directory "~/org/gtd/")
-
-(defun khalid/gtd-setup ()
-  "Set up capture templates and agenda views (PC khalid-org.el, trimmed)."
-  (let ((capture-file (concat org-gtd-directory "capture.org"))
-        (gtd-file (concat org-gtd-directory "gtd.org"))
-        (references-file (concat org-gtd-directory "references.org")))
-
-    (setq org-capture-templates
-          `(("i" "🎯 Capture" entry (file ,capture-file)
-             "* TODO %?\nCAPTURED: %U\n" :empty-lines 1)
-            ("t" "✅ Task" entry (file+headline ,gtd-file "✅ NEXT ACTIONS")
-             "* TODO %? %^g\nCAPTURED: %U\n" :empty-lines 1)
-            ("e" "📧 Email" entry (file+olp ,gtd-file "✅ NEXT ACTIONS" "💻 @computer")
-             "* TODO %? :email:\nCAPTURED: %U\n" :empty-lines 1)
-            ("p" "📁 Project" entry (file+headline ,gtd-file "📁 PROJECTS")
-             "* %? %^g\nCAPTURED: %U" :empty-lines 1)
-            ("w" "⏳ Waiting" entry (file+headline ,gtd-file "⏳ WAITING FOR")
-             "* %? :waiting:\nCAPTURED: %U" :empty-lines 1)
-            ("s" "💡 Someday" entry (file+headline ,gtd-file "💡 SOMEDAY/MAYBE")
-             "* %? :someday:\nCAPTURED: %U" :empty-lines 1)
-            ("n" "📝 Note" entry (file ,references-file)
-             "* %? :note:\nCAPTURED: %U" :empty-lines 1)
-            ;; Atomic Habits
-            ("h" "🌱 Habit" entry (file+olp ,gtd-file "🌱 ATOMIC HABITS" "🔄 Daily Habits")
-             "* TODO %?\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: TODO\n:END:\nCAPTURED: %U" :empty-lines 1)
-            ("r" "🏆 Routine" entry (file+olp ,gtd-file "🌱 ATOMIC HABITS" "🔄 Daily Habits")
-             "* %? :routine:\nCAPTURED: %U" :empty-lines 1)
-            ("H" "🔄 Habit Check-in" entry (file+olp ,gtd-file "🌱 ATOMIC HABITS" "📈 Habit Tracking")
-             "* Habit Check-in: %U\n- Energy: /10\n- Focus: /10\n- Completion: %\n- Notes: " :empty-lines 1)))
-
-  ;; Custom Agenda Views - the GTD command center (ActivityWatch "A"/"e"
-  ;; views omitted on the phone).
-  (defun khalid/gtd-context-skip (context)
-    "Skip entry unless it's a TODO under NEXT ACTIONS -> CONTEXT."
-    (let ((path (org-get-outline-path t)))
-      (unless (and
-               (>= (length path) 2)
-               (string-match-p "NEXT ACTIONS" (nth 0 path))
-               (string-match-p context (nth 1 path)))
-        (save-excursion (outline-next-heading) (point)))))
-
-  (setq org-agenda-custom-commands
-        `(("g" "🎯 GTD Contexts"
-           ((tags-todo "+TODO=\"TODO\""
-                       ((org-agenda-overriding-header "💻 Computer Tasks")
-                        (org-agenda-files (list ,gtd-file))
-                        (org-agenda-skip-function '(khalid/gtd-context-skip "@computer"))))
-            (tags-todo "+TODO=\"TODO\""
-                       ((org-agenda-overriding-header "📞 Phone Calls")
-                        (org-agenda-files (list ,gtd-file))
-                        (org-agenda-skip-function '(khalid/gtd-context-skip "@phone"))))
-            (tags-todo "+TODO=\"TODO\""
-                       ((org-agenda-overriding-header "🛒 Errands")
-                        (org-agenda-files (list ,gtd-file))
-                        (org-agenda-skip-function '(khalid/gtd-context-skip "@errands"))))
-            (tags-todo "+TODO=\"TODO\""
-                       ((org-agenda-overriding-header "🏠 Home Tasks")
-                        (org-agenda-files (list ,gtd-file))
-                        (org-agenda-skip-function '(khalid/gtd-context-skip "@home"))))
-            (tags-todo "+TODO=\"TODO\""
-                       ((org-agenda-overriding-header "👥 Agenda Items")
-                        (org-agenda-files (list ,gtd-file))
-                        (org-agenda-skip-function '(khalid/gtd-context-skip "@agenda"))))))
-          ("i" "🎯 Capture Review" tags "capture"
-           ((org-agenda-overriding-header "🎯 Capture Items to Process")))
-          ("w" "Weekly Review"
-           ((agenda ""
-                    ((org-agenda-overriding-header "Completed Tasks")
-                     (org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo 'done))
-                     (org-agenda-span 'week)))
-            (agenda ""
-                    ((org-agenda-overriding-header "Unfinished Scheduled Tasks")
-                     (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                     (org-agenda-span 'week)))))
-          ("d" "Today's Agenda" agenda ""
-           ((org-agenda-buffer-name "*Today's Agenda*")
-            (org-agenda-span 'day)
-            (org-habit-show-habits-only-for-today t)
-            (org-habit-preceding-days 7)
-            (org-habit-following-days 1)
-            (org-agenda-overriding-header "What to do today?")))
-          ("h" "🌱 Habits Review" tags "habit|routine"
-           ((org-agenda-overriding-header "🌱 Daily Habits Check-in")
-            (org-agenda-sorting-strategy '(priority-down)))))))
-
-  (mapc (lambda (f)
-          (let ((filename (concat org-gtd-directory f)))
-            (when (file-exists-p filename)
-              (add-to-list 'org-agenda-files filename))))
-        '("gtd.org" "capture.org" "calendar.org" "habits.org" "clocking.org"
-          "accountability.org" "atomic-habits/workbook.org"))
-
-  ;; Project TODOs.org files (subset of PC `khalid--projects-with-agenda').
-  (mapc (lambda (f)
-          (let ((filename (format "~/%s/TODOs.org" f)))
-            (when (file-exists-p filename)
-              (add-to-list 'org-agenda-files filename))))
-        '("freshorama" "kshell" "khalids-shell" "org-docs"))
-
-  (setq org-agenda-window-setup 'only-window))
-
-;; ====================
-;; KEYBINDINGS - Your GTD Shortcuts
+;; KEYBINDINGS
 ;; ====================
 
 (defun khalid/org-agenda-find-file ()
@@ -126,17 +21,14 @@
   (interactive)
   (find-file (completing-read "Find Org agenda file: " org-agenda-files nil t)))
 
-(defun khalid/gtd-keybindings ()
-  "Org leader keys (PC khalid-org.el; pomodoro/clock-cancel omitted)."
+(defun khalid/org-keys ()
+  "Org leader keys kept from the PC: clocking, agenda, headings.
+The GTD entry points (oF/oG capture+gtd files, oC/oT capture, oa/oA/oW
+custom agenda commands) are gone with the GTD layer."
   (khalid/declare-prefix "o" "Org")
   (khalid/declare-prefix "oc" "clocks/contacts")
 
   (khalid/set-leader-keys
-   "oF" (lambda () (interactive) (find-file (concat org-gtd-directory "capture.org")))
-   "oG" (lambda () (interactive) (find-file (concat org-gtd-directory "gtd.org")))
-
-   "oC" (lambda () (interactive) (org-capture nil "i"))
-   "oT" 'org-capture
    "oc" 'org-clock-cancel
    "od" 'org-clock-display
    "oe" 'org-clock-modify-effort-estimate
@@ -147,45 +39,36 @@
    "or" 'org-clock-report
    "ov" 'org-resolve-clocks
    "of" 'khalid/org-agenda-find-file
-
-   "oa" (lambda () (interactive) (org-agenda nil "d"))
-   "oA" (lambda () (interactive) (org-agenda nil "g"))
    "oh" 'consult-org-heading
    "ow" 'org-agenda-list
-   "oW" (lambda () (interactive) (org-agenda nil "w"))
    "oz" 'org-agenda))
 
 ;; ====================
-;; INITIALIZATION
+;; ORG
 ;; ====================
-
-(defun khalid/load-gtd ()
-  (require 'org)
-  (khalid/gtd-keybindings)
-  (khalid/gtd-setup)
-  (message "🎯 GTD system loaded successfully!"))
 
 (use-package org
   :ensure nil
   :custom
   (org-directory "~/org")
-  ;; Same choices as the PC (khalid-org.el / habits-setup):
+  ;; Same choices as the PC (khalid-org.el):
   (org-agenda-start-on-weekday 6)          ;; week starts Friday
   (org-agenda-weekend-days '(5))
   (org-hide-emphasis-markers t)
   (org-use-property-inheritance '("effort" "category"))
   (org-log-into-drawer t)
-  (org-habit-graph-column 60)
+  ;; One window: the phone screen has no room for a split agenda.
+  (org-agenda-window-setup 'only-window)
   (org-agenda-sorting-strategy
    '((agenda time-up urgency-down category-keep)
      (todo urgency-down category-keep) (tags urgency-down category-keep)
      (search category-keep)))
   :config
   (setopt org-refile-targets '((org-agenda-files :regexp . "*")))
-  (setq org-archive-location (concat org-gtd-directory "archive.org::* From %s"))
+  (setq org-archive-location (concat org-directory "/archive.org::* From %s"))
   (keymap-set org-mode-map "C-<up>" 'org-shiftup)
   (keymap-set org-mode-map "C-<down>" 'org-shiftdown)
-  (khalid/load-gtd))
+  (khalid/org-keys))
 
 ;; ====================
 ;; ORG-DOCS (local packages -> git.khalidrafi.tech, cloned by :vc)

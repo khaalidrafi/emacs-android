@@ -15,11 +15,18 @@ Each item names the file, what to look at, and why it matters.
    phone (1.5 keymap rework); the block copied from the PC's
    =meow-setup= is what gives you hjkl, c/x/y/p/u... Verify a couple of
    chords (e.g. =d w= kill-word, =s " c= surround-change) match PC.
-** TODO khalid-org.el — agenda custom commands
-   =SPC o g/i/w/d/h=. The PC hard-codes ="~/org/gtd/gtd.org"=; here it
-   interpolates =gtd-file= from =org-gtd-directory= inside the backquote
-   of =org-agenda-custom-commands= — confirm =,gtd-file= expanded to the
-   real path (batch test showed =(list "~/org/gtd/gtd.org")=).
+** DONE khalid-org.el — GTD removed
+   :Per "Remove GTD."= The capture templates, =org-agenda-custom-commands=
+   (=g/i/w/d/h=), the =~/org/gtd/= agenda-file scan, =org-gtd-directory=
+   and =khalid/load-gtd= are gone, along with the leader keys that called
+   them (=oF oG oC oT oa oA oW=) and the PC's =initial-buffer-choice=
+   agenda-at-startup in =init.el=.  Kept: clocking (=oi oo og od oe ol or
+   ov oc=), =of= agenda-file finder, =oh= =consult-org-heading=, =ow=
+   =org-agenda-list=, =oz= =org-agenda=, and the plain Org =:custom=
+   choices.  =org-archive-location= now points at
+   =~/org/archive.org= instead of the GTD directory.  Decide later whether
+   the phone needs =org-agenda-files= set at all -- it is empty now, so the
+   first =C-c o w= will ask for files.
 ** TODO khalid-org.el — tel: dialing
    =(org-link-set-parameters "tel" ...)= shells out to
    =am start -a android.intent.action.DIAL -d tel:<number>=. Only works

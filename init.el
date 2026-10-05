@@ -15,8 +15,8 @@
 ;;                                        khalid-common.el) + module loader
 ;;   personal/khalid-keybindings.el     <- prelude-evil.el leader machinery +
 ;;                                        khalid-meow.el (light) + vertico
-;;   personal/khalid-org.el             <- khalid-org.el GTD core (trimmed)
-;;                                        + emacs-android tel/dial helpers
+;;   personal/khalid-org.el             <- khalid-org.el (Org + org-docs, no
+;;                                        GTD layer) + tel/dial helpers
 ;;   personal/khalid-comm.el            <- khalid-comm.el telega (trimmed)
 ;;   personal/khalid-llm.el             <- khalid-llm.el gptel/GoModel +
 ;;                                        agent-connect client
@@ -146,10 +146,10 @@
 (dolist (module '(khalid-keybindings khalid-org khalid-comm khalid-llm))
   (load (expand-file-name (symbol-name module) khalid-android-personal-dir) t))
 
-;; Open on today's agenda, like the PC (init.el `initial-buffer-choice').
-;; `org-agenda' is an autoloaded command, so Org stays unloaded meanwhile.
-(unless noninteractive
-  (setopt initial-buffer-choice (lambda () (org-agenda nil "d"))))
+;; No `initial-buffer-choice' here: on the PC it opens the GTD "d" custom
+;; agenda command, and the GTD layer is not part of this config.  With
+;; `inhibit-startup-screen' the phone opens the ordinary startup buffer and
+;; Org stays unloaded until you type C-c o w / C-c o z.
 
 (provide 'init)
 ;;; init.el ends here
