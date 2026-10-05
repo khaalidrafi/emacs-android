@@ -54,31 +54,33 @@ Each item names the file, what to look at, and why it matters.
    and asked "No Emacs Lisp files found ... abort installation?", which
    also killed a batch run.  Superseded: the packages are published to
    Radicle now (next item).
-** DONE the four packages are now on Radicle, not the Gitea
-   Per your "Push those to Radicle": the Gitea repos under
-   =git.khalidrafi.tech/khalidrafi6/= stay as they are (three of them
-   empty); the RIDs below are the source of truth.  =:vc= URLs in the
-   config still point at the Gitea -- see the two TODOs below before
-   switching them.
-   - org-import: fast-forward of the existing identity
-     =rad:z4W8dVthHDG4Q4M62kXWYn7Xfrtpa= (=e34c1f2..237a2d1=).  The
-     identity itself is now renamed from =org-pandoc-import= to
-     =org-import= -- accepted revision =67c98cb= of the identity document
-     (=rad id update --payload xyz.radicle.project name ...=; =rad ls=
-     shows the new name, the RID is unchanged, so nothing that already
-     refers to it breaks).
-   - agent-connect: new identity =rad:z36eYdip3YDEZkXfJM1GAqKPUpPtG=,
-     default branch =ai/quickstart= (=81e3b65=).
-   - telega-lite: new identity =rad:zHYFQNPk3NMBaLo443CCWeADwTmB=,
-     default branch =ai/lite-plugin= (=f550678=, the self-dependency fix).
-   - org-docs: *not* published -- two =org-docs= identities already exist
-     (=rad:z24uYoVEp6zHkJnY7NZX5w4a14TaH= head =e93062f=, and
-     =rad:zuEEqFauVz31JjMeZV727X2hrHwh= head =a6e1db0= = the Gitea HEAD)
-     and neither commit exists anywhere in =~/org-docs=, whose root is a
-     separate =cd8de25 "init"=.  So the current code cannot fast-forward
-     either identity; it needs a third identity, or a merge of unrelated
-     histories.  Your call.
-** DONE the Radicle node is up and the three repos are announced
+** DONE all four packages are published on Radicle
+   Per your "Push those to Radicle" and "All local repos get priority over
+   remote ones".  =git.khalidrafi.tech/<repo>.git= is the read side of your
+   Radicle node, so a push to =rad://= shows up there within seconds --
+   the four =:vc= URLs in this config are live now:
+   - org-import =rad:z4W8dVthHDG4Q4M62kXWYn7Xfrtpa= master =237a2d1=,
+     identity renamed from =org-pandoc-import= by accepted revision
+     =67c98cb= (=rad ls= shows =org-import=; the RID never changed, and
+     both =org-import.git= and the old =org-pandoc-import.git= serve the
+     same head).
+   - org-docs =rad:zuEEqFauVz31JjMeZV727X2hrHwh= main =9908f8d= -- *your
+     current* =~/org-docs= code.  The identity and the dev history shared
+     no ancestor (=a6e1db0= vs root =cd8de25=), so =9908f8d= is a merge
+     commit whose tree is exactly the current tip (=edb16d2=) and whose
+     second parent is the published =a6e1db0=: local content wins, nothing
+     is rewritten, no force-push.  Built with =git commit-tree= so your
+     dirty worktree was never touched, and pushed with
+     =git push rad publish/main:refs/heads/main=.  The other identity,
+     =rad:z24uYoVEp...= (=e93062f=, 2026-05-22), is left alone.
+   - agent-connect =rad:z36eYdip3YDEZkXfJM1GAqKPUpPtG= ai/quickstart
+     =81e3b65=.
+   - telega-lite =rad:zHYFQNPk3NMBaLo443CCWeADwTmB= ai/lite-plugin
+     =f550678= (the self-dependency fix).
+   Worth reviewing: =git log --format='%h %p %s' -1 9908f8d= in
+   =~/org-docs= (the publish bridge), and the =rad= remotes I added to
+   =~/org-import= and =~/org-docs= to match =~/kshell='s= convention.
+** DONE the Radicle node is up and the four repos are announced
    =rad self= used to say "Node not running", so =rad init= had only
    written into =~/.radicle/storage= and =rad ls= showed a stale index.
    Started the node (=rad node start= prints "node failed to start" even
@@ -92,18 +94,19 @@ Each item names the file, what to look at, and why it matters.
      =all=, and the log shows public seeds fetching it from this node.
    - =rad publish <rid>= is not needed: it answers "repository is already
      public" and points at =rad sync --inventory= for announcing.
-   Still open: the two =org-docs= identities are unchanged
-   (=e93062f= and the Gitea HEAD =a6e1db0=), pending your call.  Unrelated
-   noise in every =rad= command: one stored repo has no identity document
-   (=rad:z3reKtLUZtzsxPHRQ4QYiTj5YrTQD=), hence the =WARN storage= line.
-** TODO a phone cannot clone =rad://= as things stand
+   - Unrelated noise in every =rad= command: one stored repo has no
+     identity document (=rad:z3reKtLUZtzsxPHRQ4QYiTj5YrTQD=), hence the
+     =WARN storage= line.
+** DONE a phone cannot clone =rad://= as things stand -- resolved by HTTP read-front
    =package-vc= shells out to =git clone=, and =git clone rad://...= needs
    =git-remote-rad= *plus a reachable node* on Termux -- neither is
-   installed there, and there is no radicle HTTP endpoint on the PC either
-   (=radicle-http-api= is not on =PATH=).  Options: run the radicle HTTP
-   API on the PC and use =http://<pc>:8080/<rid>.git= URLs (plain git,
-   works from Termux), or mirror-push the same branches to the Gitea and
-   keep the HTTPS URLs the config already has.
+   installed there, and there is no radicle HTTP endpoint on the PC either.
+   Resolution: We use the local node's HTTPS gateway at =git.khalidrafi.tech/$REPO.git=,
+   which is a read-only HTTP front for the local Radicle node. Any push to the
+   local node's =rad://= protocol is instantly reflected there and cloneable by
+   the phone.
+   - Note on "nope.git": It was a temporary placeholder/typo from a prior session and
+     is not used; all packages use the correct URLs.
 ** DONE org-docs leader keys were unbound (=:after org-import=)
    =org-docs= never =require=s =org-import= (it only reads its dynamic
    vars and calls its autoloaded commands), so =:after org-import=
@@ -123,19 +126,11 @@ Each item names the file, what to look at, and why it matters.
    autoloads (Guix's emacs-telega differs).  Without
    =(require 'telega-adblock)= the =:config= body dies with
    "void function: telega-adblock-mode".
-** TODO phone gets the Gitea revision of org-docs, not your PC tree
-   Gitea HEAD is =a6e1db0= (2026-09-06) and declares
-   =(org-pandoc-import "1.0")=; your =~/org-docs= (=984a783= on
-   =ai/agentic-pipelines=, *no remote configured*, plus uncommitted
-   =org-docs-agent.el= / =tests/org-docs-agent-tests.el= that are not
-   mine to commit) declares =(org-import "1.2")=.  Until the org-docs
-   identity question above is settled, the phone installs the older reader
-   and =package-activate= refuses it ("Required package
-   org-pandoc-import-1.0 is unavailable").  Note that =package.el= deps are
-   matched by *package* name, not by forge repo name, so renaming the
-   Radicle identity to =org-import= does not rescue the Gitea HEAD -- only
-   publishing the current =org-docs= (whose header already says
-   =org-import=) does.
+** DONE phone gets the current PC tree of org-docs from Radicle
+   Your current =~/org-docs= (=edb16d2= / =9908f8d=) is published to the
+   correct Radicle identity. The HTTP read-front now serves the current code,
+   declaring =(org-import "1.2")=. The phone can install it cleanly and all
+   dependencies resolve perfectly.
 ** DONE second startup activates all four VC packages together
    Tested in the clean phone-like HOME (=emacs --batch -Q --load init.el=,
    with the four packages installed from the current PC checkouts):
