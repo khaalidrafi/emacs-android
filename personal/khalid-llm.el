@@ -140,7 +140,7 @@ You are a top programming expert who provides precise answers, avoiding ambiguou
 ;; (then defaults are fine), or set agent-connect-client-host to the PC LAN
 ;; address together with agent-connect-client-token.
 (use-package agent-connect
-  :vc (:url "https://git.khalidrafi.tech/khalidrafi6/agent-connect.git"
+  :vc (:url "https://git.khalidrafi.tech/agent-connect.git"
        :rev :newest)
   :commands (agent-connect-connect)
   :init

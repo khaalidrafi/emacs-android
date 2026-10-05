@@ -23,7 +23,7 @@
 ;; (README.org in the repo explains the no-fork design; the hook keeps
 ;; telega itself unloaded at startup).
 (use-package telega-lite
-  :vc (:url "https://git.khalidrafi.tech/khalidrafi6/telega-lite.git"
+  :vc (:url "https://git.khalidrafi.tech/telega-lite.git"
        :rev :newest)
   :after telega
   :commands (telega-lite-mode telega-touch-mode)

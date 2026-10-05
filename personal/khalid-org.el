@@ -78,7 +78,7 @@ custom agenda commands) are gone with the GTD layer."
 ;; the phone has no local copy, so :vc clones it from the Gitea.  Its own
 ;; deps (plz, dash, s) come from ELPA/MELPA automatically.
 (use-package org-import
-  :vc (:url "https://git.khalidrafi.tech/khalidrafi6/org-import.git"
+  :vc (:url "https://git.khalidrafi.tech/org-import.git"
        :rev :newest)
   :after org
   :commands (org-import-markdown-as-org org-import-markdown-to-org))
