@@ -166,3 +166,19 @@ Each item names the file, what to look at, and why it matters.
    Its =Package-Requires= has =(org "9.8")=, so installing it over
    Emacs 30.2's built-in Org adds ELPA's Org and prints the usual
    "Org version mismatch" warning.  Same on the PC (=elpa/org-9.8.10=).
+** DONE full batch load test passes (PC-shared elpa caveats noted)
+   =emacs --batch -Q --load init.el= exits 0.  It prints two activation
+   lines that are *not* from this config but from the shared PC elpa the
+   test reuses (=~/.emacs.d/elpa=):
+   - "Error loading autoloads: (void-variable
+     org-contacts-capf-completing)" -- the PC's =org-contacts= package
+     ships a buggy generated autoloads form.  This config only defines its
+     own =org-contacts--dial-number=/=org-contacts-dial-phone-at-point=
+     helpers; it never =require=s the =org-contacts= package.
+   - "Required package notmuch-0.39 is unavailable" / "Unable to activate
+     =ol-notmuch=" -- the PC's =ol-notmuch= package wants =notmuch=, which
+     is intentionally *left out* on the phone (=khalid-comm.el= header).
+   The phone's own elpa will contain only the packages this config asks
+   for, so neither line will appear there.  =vertico= is present
+   (=khalid-keybindings.el=:316, with =orderless=, =marginalia=,
+   =consult=) and activates cleanly.
