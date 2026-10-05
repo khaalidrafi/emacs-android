@@ -87,10 +87,16 @@ custom agenda commands) are gone with the GTD layer."
 ;; ~/docs/ tree the PC uses; import commands are network-heavy, so the
 ;; reading keys below are what matters on the phone).  Keys mirror the
 ;; PC's "d..." leader set (khalid-org.el `use-package org-docs').
+;;
+;; `:after org', NOT `:after org-import': org-docs only reads org-import's
+;; dynamic variables and calls its commands through autoloads (see the
+;; "not required" note in org-docs.el), so nothing loads org-import at
+;; startup.  Depending on it would defer this whole block -- including the
+;; :init leader keys -- and C-c d* would stay unbound.
 (use-package org-docs
   :vc (:url "https://git.khalidrafi.tech/org-docs.git"
        :rev :newest)
-  :after org-import
+  :after org
   :commands (org-docs-open org-docs-search org-docs-search-current-doc
              org-docs-find-file org-docs-find-file-current-doc
              org-docs-recentf org-docs-current-doc-recentf
