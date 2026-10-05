@@ -61,9 +61,12 @@ Each item names the file, what to look at, and why it matters.
    config still point at the Gitea -- see the two TODOs below before
    switching them.
    - org-import: fast-forward of the existing identity
-     =rad:z4W8dVthHDG4Q4M62kXWYn7Xfrtpa= (=e34c1f2..237a2d1=, still
-     *displayed as* =org-pandoc-import= in =rad ls=, because the identity
-     name predates the rename).
+     =rad:z4W8dVthHDG4Q4M62kXWYn7Xfrtpa= (=e34c1f2..237a2d1=).  The
+     identity itself is now renamed from =org-pandoc-import= to
+     =org-import= -- accepted revision =67c98cb= of the identity document
+     (=rad id update --payload xyz.radicle.project name ...=; =rad ls=
+     shows the new name, the RID is unchanged, so nothing that already
+     refers to it breaks).
    - agent-connect: new identity =rad:z36eYdip3YDEZkXfJM1GAqKPUpPtG=,
      default branch =ai/quickstart= (=81e3b65=).
    - telega-lite: new identity =rad:zHYFQNPk3NMBaLo443CCWeADwTmB=,
@@ -116,7 +119,11 @@ Each item names the file, what to look at, and why it matters.
    mine to commit) declares =(org-import "1.2")=.  Until the org-docs
    identity question above is settled, the phone installs the older reader
    and =package-activate= refuses it ("Required package
-   org-pandoc-import-1.0 is unavailable").
+   org-pandoc-import-1.0 is unavailable").  Note that =package.el= deps are
+   matched by *package* name, not by forge repo name, so renaming the
+   Radicle identity to =org-import= does not rescue the Gitea HEAD -- only
+   publishing the current =org-docs= (whose header already says
+   =org-import=) does.
 ** TODO =:vc= install is lazy: first use pays the clone
    =use-package-handler/:vc= puts the install in the runtime body, so
    startup stays fast but the first =C-c d o= / =C-c a a= clones over
