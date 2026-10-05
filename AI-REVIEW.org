@@ -1,0 +1,42 @@
+#+title: AI-REVIEW — Android Emacs config
+#+startup: indent
+
+Review TODO tree for the AI-written config in =~/.emacs.d.android=.
+Each item names the file, what to look at, and why it matters.
+
+* DONE ported from PC personal config
+** TODO khalid-keybindings.el — leader machinery
+   :C-x C-t is "telega", C-c <letter> <letter> everything else.
+   Check =khalid/set-leader-keys= (global-map string bindings, verbatim
+   from PC =modules/prelude-evil.el=) feels right on the phone keyboard,
+   and that "xt"/"tf"/"tk" open Telega as expected.
+** TODO khalid-keybindings.el — meow key set
+   Meow's built-in normal/motion maps are nearly empty on both PC and
+   phone (1.5 keymap rework); the block copied from the PC's
+   =meow-setup= is what gives you hjkl, c/x/y/p/u... Verify a couple of
+   chords (e.g. =d w= kill-word, =s " c= surround-change) match PC.
+** TODO khalid-org.el — agenda custom commands
+   =SPC o g/i/w/d/h=. The PC hard-codes ="~/org/gtd/gtd.org"=; here it
+   interpolates =gtd-file= from =org-gtd-directory= inside the backquote
+   of =org-agenda-custom-commands= — confirm =,gtd-file= expanded to the
+   real path (batch test showed =(list "~/org/gtd/gtd.org")=).
+** TODO khalid-org.el — tel: dialing
+   =(org-link-set-parameters "tel" ...)= shells out to
+   =am start -a android.intent.action.DIAL -d tel:<number>=. Only works
+   under Termux; on =org.gnu.emacs= it silently no-ops. Test by clicking
+   a tel: link in an Org buffer.
+** TODO khalid-comm.el — telega server path
+   =(getenv "PREFIX")= is wired in =early-init.el= for Termux; under
+   =org.gnu.emacs= that env var does not exist and telega needs the
+   bundled tdl — adjust =telega-server-libs-prefix= if telega won't start.
+** TODO khalid-llm.el — gomodel model list
+   =khalid/get-gomodel-models-from-api= queries the proxy's =/v1/models=,
+   sends =gptel-api-key= as a Bearer token when set, and returns nil in
+   batch and when unreachable (fallback: =free ollama-free
+   cloudflare-free=). Confirm the phone reaches the proxy: SSH tunnel
+   =ssh -N -L 8080:localhost:8080 khalid@<pc>= or set
+   =khalid-gomodel-host= to a LAN address.
+** TODO early-init.el — Termux $PREFIX wiring
+   Exports =PREFIX=/data/data/com.termux/files/usr= and prepends its
+   =bin/= to =exec-path=. Only correct on Termux; revisit if you switch
+   to the FAI =org.gnu.emacs= APK.
