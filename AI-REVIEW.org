@@ -124,6 +124,23 @@ Each item names the file, what to look at, and why it matters.
    Radicle identity to =org-import= does not rescue the Gitea HEAD -- only
    publishing the current =org-docs= (whose header already says
    =org-import=) does.
+** DONE second startup activates all four VC packages together
+   Tested in the clean phone-like HOME (=emacs --batch -Q --load init.el=,
+   with the four packages installed from the current PC checkouts):
+   =package-initialize= reports =installed=t in-alist=t for org-import,
+   org-docs, agent-connect and telega-lite, adds all four to
+   =load-path=, prints *no* warnings, and =locate-library= finds the
+   =.elc= of each.  =org-docs= declaring =(org-import "1.2")= resolves --
+   which is the dependency name the =org-pandoc-import= -> =org-import=
+   rename had to make true.  With the packages present, every key binds
+   (=C-c d o= =org-docs-open=, =d s=, =d d=, =d r=, =d f=, =C-c o i=,
+   =o w=, =o z=, =C-c a a=, =C-x C-t=), all five entry commands are
+   defined, and =telega-lite= + =telega-lite-touch= load in the same
+   session without the nesting error (the self-dependency fix holds).
+   The =:config= body runs too: =org-docs-recentf-mode= is on and
+   =recentf-exclude= gets the docs directory -- *expanded*, because
+   =org-docs-dir= is expanded before the =add-to-list=, so on the phone
+   the entry is the real path under =~/docs=, not the literal string.
 ** TODO =:vc= install is lazy: first use pays the clone
    =use-package-handler/:vc= puts the install in the runtime body, so
    startup stays fast but the first =C-c d o= / =C-c a a= clones over
