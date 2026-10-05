@@ -102,8 +102,9 @@
   (package-refresh-contents)
   (package-install 'gnu-elpa-keyring-update))
 
-;; Fully enforce signature checking once keyring is present.
-(setq package-check-signature t)
+;; `allow-unsigned' keeps accepting MELPA packages (unsigned) while still
+;; verifying GNU ELPA signatures when the keyring is present.
+;; Setting this to `t' would reject every MELPA install.
 
 ;; Bootstrap use-package.  Install it from ELPA when it is not installed
 ;; yet -- and BEFORE any require: the ELPA copy (2.4.6) supports the `:vc'

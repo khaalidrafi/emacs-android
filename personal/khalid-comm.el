@@ -1,8 +1,8 @@
-;;; khalid-comm.el --- Telega for Android  -*- lexical-binding: t -*-
+;;; khalid-comm.el --- Telega & Notmuch for Android  -*- lexical-binding: t -*-
 
 ;; -*- mode: emacs-lisp; lexical-binding: t -*-
 
-;; Trimmed port of the PC personal/khalid-comm.el (telega only; notmuch,
+;; Trimmed port of the PC personal/khalid-comm.el (telega and notmuch;
 ;; mu4e, libpurple stay on the PC).
 ;;
 ;; Differences from the PC, forced by the device:
@@ -13,6 +13,7 @@
 ;;   it holds the touch/weak-device tweaks.
 ;; - The PC's evil key snippets are omitted; meow's motion state on
 ;;   `telega-root-mode' (see khalid-keybindings.el) gives the j/k browsing.
+;; - notmuch is configured for mail reading over the Termux notmuch binary.
 
 ;;; Code:
 
@@ -31,6 +32,16 @@
   (add-hook 'telega-load-hook #'telega-lite-mode))
 
 (use-package telega
+  ;; Pinned to the newest commit whose `telega-tdlib-min-version' (1.8.44)
+  ;; still fits Termux's libtd (currently 1.8.50).  The next commit,
+  ;; "Support for TDLib 1.8.52" (952841ca...), raises the minimum to 1.8.52,
+  ;; which 1.8.50 fails; newer commits need 1.8.66+.  Bump this revision
+  ;; only when `pkg upgrade libtd' lands a libtd new enough.  Check the
+  ;; live minimum at:
+  ;;   curl -s https://raw.githubusercontent.com/zevlg/telega.el/master/telega.el \
+  ;;     | grep telega-tdlib-min-version
+  :vc (:url "https://github.com/zevlg/telega.el"
+       :rev "ff06f58364375c96477561f265e3dbf55a8ad231")
   :commands (telega)
   :init
   ;; No images/emoji bitmaps on the phone: much faster rendering over
@@ -86,6 +97,23 @@
 ;; build shipped it, so require it softly after org loads.
 (with-eval-after-load 'org
   (require 'ol-telega nil t))
+
+;; ====================
+;; NOTMUCH (Android email client)
+;; ====================
+(use-package notmuch
+  :commands (notmuch notmuch-mua-new-mail)
+  :init
+  (khalid/declare-prefix "m" "mail")
+  (khalid/set-leader-keys
+   "mm" 'notmuch
+   "mc" 'notmuch-mua-new-mail
+   "ms" 'notmuch-search
+   "mf" 'notmuch-refresh-this-buffer)
+  :config
+  (setq notmuch-search-oldest-first nil)
+  (with-eval-after-load 'org
+    (require 'ol-notmuch nil t)))
 
 (provide 'khalid-comm)
 ;;; khalid-comm.el ends here
