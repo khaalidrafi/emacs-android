@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [ ai/main, main ]
+  pull_request:
+    branches: [ main, ai/main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Emacs
+        uses: purcell/setup-emacs@master
+        with:
+          version: 30.1
+
+      - name: Install TDLib and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libtd-dev pkg-config make libssl-dev zlib1g-dev
+
+      - name: Validate Emacs Configuration Batch Load
+        run: |
+          emacs --batch -Q --load init.el
