@@ -39,7 +39,7 @@ custom agenda commands) are gone with the GTD layer."
    "or" 'org-clock-report
    "ov" 'org-resolve-clocks
    "of" 'khalid/org-agenda-find-file
-   "oh" 'consult-org-heading
+   "oh" 'org-goto
    "ow" 'org-agenda-list
    "oz" 'org-agenda))
 
@@ -105,8 +105,13 @@ custom agenda commands) are gone with the GTD layer."
              org-docs-update-id-locations)
   :custom
   (org-docs-dir "~/docs/")
-  (org-docs-search-command #'consult-ripgrep)
-  (org-docs-find-file-command #'consult-fd)
+  ;; org-docs calls these as `(funcall cmd doc-dir)', so bind the dir and
+  ;; ask for the pattern -- built-in replacements for consult-ripgrep/
+  ;; consult-fd (Consult dropped as bloat).
+  (org-docs-search-command
+   (lambda (dir) (rgrep (read-string "Regex to search in docs: ") dir)))
+  (org-docs-find-file-command
+   (lambda (dir) (find-name-dired (read-string "File pattern: ") dir)))
   :init
   (khalid/declare-prefix "d" "docs")
   (khalid/set-leader-keys

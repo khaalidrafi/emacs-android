@@ -10,7 +10,7 @@
 ;;                                own defaults are nearly empty since the
 ;;                                1.5 keymap rework, so the PC defines every
 ;;                                key itself; we copy that)
-;;   modules/prelude-vertico.el -> vertico + orderless + marginalia + consult
+;;   modules/prelude-vertico.el -> vertico + orderless + marginalia
 ;;   personal/khalid-keybindings.el -> a few common leader keys
 ;;
 ;; Leader keys are plain global bindings: "C-c <k1> <k2>" per leader string
@@ -210,7 +210,7 @@ sequence.  NAME is a string used as the prefix command."
    '("Y" . meow-sync-grab)
    '("z" . meow-pop-selection)
    '("C-c <tab>" . meow-insert)
-   '("/" . consult-line)
+   '("/" . isearch-forward)
    `(,khalid--meow-pop-to-mark-key . meow-pop-to-mark)
    `(,khalid--meow-search-current-symbol-key . khalid/meow-search-current-symbol)
    `(,khalid--meow-mark-key . set-mark-command)
@@ -274,7 +274,7 @@ sequence.  NAME is a string used as the prefix command."
    '("y" . meow-save)
    '("Y" . meow-sync-grab)
    '("z" . meow-pop-selection)
-   '("/" . consult-line)
+   '("/" . isearch-forward)
    '("'" . meow-change-char)
    '("," . "C-,")
    `(,khalid--meow-pop-to-mark-key . meow-pop-to-mark)
@@ -310,7 +310,7 @@ sequence.  NAME is a string used as the prefix command."
   (meow-global-mode 1))
 
 ;; ---------------------------------------------------------------------------
-;; Completion: vertico + orderless + marginalia + consult
+;; Completion: vertico + orderless + marginalia
 ;; (Corfu is skipped: an on-screen keyboard fights popup completion)
 ;; ---------------------------------------------------------------------------
 (use-package vertico
@@ -324,9 +324,6 @@ sequence.  NAME is a string used as the prefix command."
 
 (use-package marginalia
   :init (marginalia-mode))
-
-(use-package consult
-  :commands (consult-line consult-org-heading))
 
 ;; ---------------------------------------------------------------------------
 ;; Common leader keys, subset of personal/khalid-keybindings.el

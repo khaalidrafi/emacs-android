@@ -36,6 +36,18 @@ Each item names the file, what to look at, and why it matters.
    =(getenv "PREFIX")= is wired in =early-init.el= for Termux; under
    =org.gnu.emacs= that env var does not exist and telega needs the
    bundled tdl — adjust =telega-server-libs-prefix= if telega won't start.
+** DONE consult dropped as bloat
+   Per your "Consult is bloat": removed the =use-package consult= block
+   from =khalid-keybindings.el= and replaced its three uses with
+   built-ins:
+   - meow =/= (normal & insert maps): =consult-line= -> =isearch-forward=.
+   - Org leader =oh=: =consult-org-heading= -> built-in =org-goto=.
+   - =org-docs=: =org-docs-search-command= / =org-docs-find-file-command=
+     used to be =#'consult-ripgrep= / =#'consult-fd=; now small lambdas
+     binding =dir= and calling =rgrep= / =find-name-dired= (org-docs
+     calls them as =(funcall cmd doc-dir)=, so a plain symbol wouldn't
+     work).  Verify =C-c d s= / =d f= still do the right thing on the
+     phone and that =/= in meow behaves like regular isearch now.
 ** TODO khalid-llm.el — gomodel model list
    =khalid/get-gomodel-models-from-api= queries the proxy's =/v1/models=,
    sends =gptel-api-key= as a Bearer token when set, and returns nil in
@@ -47,7 +59,7 @@ Each item names the file, what to look at, and why it matters.
    Exports =PREFIX=/data/data/com.termux/files/usr= and prepends its
    =bin/= to =exec-path=. Only correct on Termux; revisit if you switch
    to the FAI =org.gnu.emacs= APK.
-* TODO org-docs + conversion of local packages to =:vc=
+* DONE org-docs + conversion of local packages to =:vc=
 ** DONE the three empty Gitea repos no longer matter
    =git.khalidrafi.tech/khalidrafi6/{org-import,agent-connect,telega-lite}=
    had 0 heads (=git ls-remote=), so =package-vc-install= cloned nothing
@@ -180,8 +192,8 @@ Each item names the file, what to look at, and why it matters.
      is intentionally *left out* on the phone (=khalid-comm.el= header).
    The phone's own elpa will contain only the packages this config asks
    for, so neither line will appear there.  =vertico= is present
-   (=khalid-keybindings.el=:316, with =orderless=, =marginalia=,
-   =consult=) and activates cleanly.
+   (=khalid-keybindings.el=:316, with =orderless=, =marginalia=)
+   and activates cleanly. Consult was dropped as bloat.
 ** DONE GNU ELPA signature verification wired up
    The fresh install used to fail with "No public key for
    645357D2883A0966 / EDDSA" because =package-check-signature= was nil
