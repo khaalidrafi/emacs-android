@@ -182,3 +182,21 @@ Each item names the file, what to look at, and why it matters.
    for, so neither line will appear there.  =vertico= is present
    (=khalid-keybindings.el=:316, with =orderless=, =marginalia=,
    =consult=) and activates cleanly.
+** DONE GNU ELPA signature verification wired up
+   The fresh install used to fail with "No public key for
+   645357D2883A0966 / EDDSA" because =package-check-signature= was nil
+   (or the default keyring in =~/.emacs.d=gpg-keyring= was empty/missing).
+   =init.el= now:
+   1. sets =package-check-signature= to ='allow-unsigned= so the *first*
+      run can install =gnu-elpa-keyring-update= itself,
+   2. =(package-install 'gnu-elpa-keyring-update)= — the package ships
+      the current GNU EDDSA key (=gnu-elpa.gpg-keyring=) and imports it
+      into the local keyring on load,
+   3. flips =package-check-signature= back to =t= so every later
+      =package-install= verifies signatures against that keyring.
+   Verified on the PC batch test: first boot installs & imports the
+   keyring, second boot runs fully with =check-signature=t= and loads
+   all personal modules without signature errors.  Re-run the phone
+   fresh (delete =~/.emacs.d.android/elpa/gnu-elpa-keyring-update-*=)
+   if the keyring ever expires — the config re-installs it
+   automatically on the next startup that needs it.
