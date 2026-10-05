@@ -16,7 +16,7 @@ Each item names the file, what to look at, and why it matters.
    =meow-setup= is what gives you hjkl, c/x/y/p/u... Verify a couple of
    chords (e.g. =d w= kill-word, =s " c= surround-change) match PC.
 ** DONE khalid-org.el — GTD removed
-   :Per "Remove GTD."= The capture templates, =org-agenda-custom-commands=
+   Per your "Remove GTD": the capture templates, =org-agenda-custom-commands=
    (=g/i/w/d/h=), the =~/org/gtd/= agenda-file scan, =org-gtd-directory=
    and =khalid/load-gtd= are gone, along with the leader keys that called
    them (=oF oG oC oT oa oA oW=) and the PC's =initial-buffer-choice=
@@ -48,12 +48,53 @@ Each item names the file, what to look at, and why it matters.
    =bin/= to =exec-path=. Only correct on Termux; revisit if you switch
    to the FAI =org.gnu.emacs= APK.
 * TODO org-docs + conversion of local packages to =:vc=
-** BLOCKED three of the four repos are empty on the Gitea
+** DONE the three empty Gitea repos no longer matter
    =git.khalidrafi.tech/khalidrafi6/{org-import,agent-connect,telega-lite}=
-   have 0 heads (=git ls-remote=), so =package-vc-install= clones nothing
-   and then asks "No Emacs Lisp files found ... abort installation?",
-   which also kills a batch run.  Only =org-docs= has content.  Push those
-   three; the =:rev :newest= blocks then work as written.
+   had 0 heads (=git ls-remote=), so =package-vc-install= cloned nothing
+   and asked "No Emacs Lisp files found ... abort installation?", which
+   also killed a batch run.  Superseded: the packages are published to
+   Radicle now (next item).
+** DONE the four packages are now on Radicle, not the Gitea
+   Per your "Push those to Radicle": the Gitea repos under
+   =git.khalidrafi.tech/khalidrafi6/= stay as they are (three of them
+   empty); the RIDs below are the source of truth.  =:vc= URLs in the
+   config still point at the Gitea -- see the two TODOs below before
+   switching them.
+   - org-import: fast-forward of the existing identity
+     =rad:z4W8dVthHDG4Q4M62kXWYn7Xfrtpa= (=e34c1f2..237a2d1=, still
+     *displayed as* =org-pandoc-import= in =rad ls=, because the identity
+     name predates the rename).
+   - agent-connect: new identity =rad:z36eYdip3YDEZkXfJM1GAqKPUpPtG=,
+     default branch =ai/quickstart= (=81e3b65=).
+   - telega-lite: new identity =rad:zHYFQNPk3NMBaLo443CCWeADwTmB=,
+     default branch =ai/lite-plugin= (=f550678=, the self-dependency fix).
+   - org-docs: *not* published -- two =org-docs= identities already exist
+     (=rad:z24uYoVEp6zHkJnY7NZX5w4a14TaH= head =e93062f=, and
+     =rad:zuEEqFauVz31JjMeZV727X2hrHwh= head =a6e1db0= = the Gitea HEAD)
+     and neither commit exists anywhere in =~/org-docs=, whose root is a
+     separate =cd8de25 "init"=.  So the current code cannot fast-forward
+     either identity; it needs a third identity, or a merge of unrelated
+     histories.  Your call.
+** TODO the Radicle node is stopped, so nothing is announced yet
+   =rad self= says "Node not running"; =rad ls= shows a stale index and
+   the two new repos only live in =~/.radicle/storage=.  Run
+   =rad node start= (it then announces on its own -- =rad init= told us
+   "will be announced to the network when you start your node"), and
+   =rad publish <rid>= per repo if they stay invisible.
+** TODO a phone cannot clone =rad://= as things stand
+   =package-vc= shells out to =git clone=, and =git clone rad://...= needs
+   =git-remote-rad= *plus a reachable node* on Termux -- neither is
+   installed there, and there is no radicle HTTP endpoint on the PC either
+   (=radicle-http-api= is not on =PATH=).  Options: run the radicle HTTP
+   API on the PC and use =http://<pc>:8080/<rid>.git= URLs (plain git,
+   works from Termux), or mirror-push the same branches to the Gitea and
+   keep the HTTPS URLs the config already has.
+** DONE org-docs leader keys were unbound (=:after org-import=)
+   =org-docs= never =require=s =org-import= (it only reads its dynamic
+   vars and calls its autoloaded commands), so =:after org-import=
+   deferred the whole =use-package= block, =:init= leader keys included:
+   =C-c d o= / =d s= / =d d= were unbound on a fresh startup.  Now
+   =:after org= -- still lazy, because Org itself is autoloaded.
 ** DONE telega-lite self-dependency (fixed in =~/telega-lite=)
    =telega-lite-touch.el= declared =(telega-lite "0.1.0")= in its own
    =Package-Requires=.  =package-vc= merges every file's header into
@@ -69,17 +110,19 @@ Each item names the file, what to look at, and why it matters.
    "void function: telega-adblock-mode".
 ** TODO phone gets the Gitea revision of org-docs, not your PC tree
    Gitea HEAD is =a6e1db0= (2026-09-06) and declares
-   =(org-pandoc-import "1.0")=; your =~/org-docs= (=90e7adf=, 2026-10-05,
-   *no remote configured*) declares =(org-import "1.2")= and has
-   uncommitted changes.  Until you push, the phone installs the older
-   reader and =package-activate= refuses it
-   ("Required package org-pandoc-import-1.0 is unavailable").
+   =(org-pandoc-import "1.0")=; your =~/org-docs= (=984a783= on
+   =ai/agentic-pipelines=, *no remote configured*, plus uncommitted
+   =org-docs-agent.el= / =tests/org-docs-agent-tests.el= that are not
+   mine to commit) declares =(org-import "1.2")=.  Until the org-docs
+   identity question above is settled, the phone installs the older reader
+   and =package-activate= refuses it ("Required package
+   org-pandoc-import-1.0 is unavailable").
 ** TODO =:vc= install is lazy: first use pays the clone
    =use-package-handler/:vc= puts the install in the runtime body, so
    startup stays fast but the first =C-c d o= / =C-c a a= clones over
    mobile data.  Also check the *second* startup: =package-activate= only
    activates a package once every declared dep exists (it then activates
-   deps recursively, so =:after org-import= ordering is not required).
+   deps recursively, so the =:after= ordering is not required).
 ** TODO org-docs pulls Org 9.8.10 from GNU ELPA
    Its =Package-Requires= has =(org "9.8")=, so installing it over
    Emacs 30.2's built-in Org adds ELPA's Org and prints the usual
