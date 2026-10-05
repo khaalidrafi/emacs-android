@@ -133,13 +133,15 @@ You are a top programming expert who provides precise answers, avoiding ambiguou
 ;; ---------------------------------------------------------------------------
 ;; agent-connect (client half; the PC owns the agent-shell sessions)
 ;; ---------------------------------------------------------------------------
-;; The repo must be synced to the phone.  Reach the PC server either with
+;; Cloned from the Gitea on first use (use-package :vc -> package-vc-install);
+;; `shell-maker' comes from MELPA automatically.  Reach the PC server either
+;; with
 ;;   ssh -N -L 1999:127.0.0.1:1999 khalid@<pc>
 ;; (then defaults are fine), or set agent-connect-client-host to the PC LAN
 ;; address together with agent-connect-client-token.
 (use-package agent-connect
-  :ensure nil
-  :load-path "~/agent-connect/"
+  :vc (:url "https://git.khalidrafi.tech/khalidrafi6/agent-connect.git"
+       :rev :newest)
   :commands (agent-connect-connect)
   :init
   (khalid/declare-prefix "aa" "agent-connect")

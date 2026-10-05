@@ -40,3 +40,40 @@ Each item names the file, what to look at, and why it matters.
    Exports =PREFIX=/data/data/com.termux/files/usr= and prepends its
    =bin/= to =exec-path=. Only correct on Termux; revisit if you switch
    to the FAI =org.gnu.emacs= APK.
+* TODO org-docs + conversion of local packages to =:vc=
+** BLOCKED three of the four repos are empty on the Gitea
+   =git.khalidrafi.tech/khalidrafi6/{org-import,agent-connect,telega-lite}=
+   have 0 heads (=git ls-remote=), so =package-vc-install= clones nothing
+   and then asks "No Emacs Lisp files found ... abort installation?",
+   which also kills a batch run.  Only =org-docs= has content.  Push those
+   three; the =:rev :newest= blocks then work as written.
+** DONE telega-lite self-dependency (fixed in =~/telega-lite=)
+   =telega-lite-touch.el= declared =(telega-lite "0.1.0")= in its own
+   =Package-Requires=.  =package-vc= merges every file's header into
+   =telega-lite-pkg.el=, so the package required *itself*; activating it
+   recursed until =max-lisp-eval-depth= was exceeded
+   (=excessive-lisp-nesting 1601=), which aborted =package-initialize= and
+   left *every* later package unloaded.  Review the one-line fix and push
+   it with the repo.
+** DONE khalid-comm.el — =telega-adblock-mode= needs an explicit require
+   MELPA's telega keeps it in =contrib/telega-adblock.el=, outside its
+   autoloads (Guix's emacs-telega differs).  Without
+   =(require 'telega-adblock)= the =:config= body dies with
+   "void function: telega-adblock-mode".
+** TODO phone gets the Gitea revision of org-docs, not your PC tree
+   Gitea HEAD is =a6e1db0= (2026-09-06) and declares
+   =(org-pandoc-import "1.0")=; your =~/org-docs= (=90e7adf=, 2026-10-05,
+   *no remote configured*) declares =(org-import "1.2")= and has
+   uncommitted changes.  Until you push, the phone installs the older
+   reader and =package-activate= refuses it
+   ("Required package org-pandoc-import-1.0 is unavailable").
+** TODO =:vc= install is lazy: first use pays the clone
+   =use-package-handler/:vc= puts the install in the runtime body, so
+   startup stays fast but the first =C-c d o= / =C-c a a= clones over
+   mobile data.  Also check the *second* startup: =package-activate= only
+   activates a package once every declared dep exists (it then activates
+   deps recursively, so =:after org-import= ordering is not required).
+** TODO org-docs pulls Org 9.8.10 from GNU ELPA
+   Its =Package-Requires= has =(org "9.8")=, so installing it over
+   Emacs 30.2's built-in Org adds ELPA's Org and prints the usual
+   "Org version mismatch" warning.  Same on the PC (=elpa/org-9.8.10=).

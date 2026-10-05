@@ -188,6 +188,59 @@
   (khalid/load-gtd))
 
 ;; ====================
+;; ORG-DOCS (local packages -> git.khalidrafi.tech, cloned by :vc)
+;; ====================
+
+;; org-import is an org-docs dependency the PC loads from ~/org-import/;
+;; the phone has no local copy, so :vc clones it from the Gitea.  Its own
+;; deps (plz, dash, s) come from ELPA/MELPA automatically.
+(use-package org-import
+  :vc (:url "https://git.khalidrafi.tech/khalidrafi6/org-import.git"
+       :rev :newest)
+  :after org
+  :commands (org-import-markdown-as-org org-import-markdown-to-org))
+
+;; Offline documentation reader (docs live under `org-docs-dir', same
+;; ~/docs/ tree the PC uses; import commands are network-heavy, so the
+;; reading keys below are what matters on the phone).  Keys mirror the
+;; PC's "d..." leader set (khalid-org.el `use-package org-docs').
+(use-package org-docs
+  :vc (:url "https://git.khalidrafi.tech/org-docs.git"
+       :rev :newest)
+  :after org-import
+  :commands (org-docs-open org-docs-search org-docs-search-current-doc
+             org-docs-find-file org-docs-find-file-current-doc
+             org-docs-recentf org-docs-current-doc-recentf
+             org-docs-doc-recentf org-docs-find-last-doc-file
+             org-docs-import-devdocs org-docs-browse-source-url
+             org-docs-update-id-locations)
+  :custom
+  (org-docs-dir "~/docs/")
+  (org-docs-search-command #'consult-ripgrep)
+  (org-docs-find-file-command #'consult-fd)
+  :init
+  (khalid/declare-prefix "d" "docs")
+  (khalid/set-leader-keys
+   "dO" 'devdocs-browser-open
+   "do" 'org-docs-open
+   "ds" 'org-docs-search
+   "dS" 'org-docs-search-current-doc
+   "df" 'org-docs-find-file
+   "dF" 'org-docs-find-file-current-doc
+   "dr" 'org-docs-recentf
+   "dR" 'org-docs-current-doc-recentf
+   "de" 'org-docs-doc-recentf
+   "dl" 'org-docs-find-last-doc-file
+   "dd" 'org-docs-import-devdocs
+   "db" 'org-docs-browse-source-url
+   "du" 'org-docs-update-id-locations)
+  :config
+  (add-to-list 'recentf-exclude org-docs-dir)
+  ;; `dr'/'dR'/'de'/'dl' read the doc-local recent files list, which only
+  ;; fills up while `org-docs-recentf-mode' records visits (PC does the same).
+  (org-docs-recentf-mode +1))
+
+;; ====================
 ;; ANDROID EXTRAS (from ~/emacs-android/khalid-common.el)
 ;; ====================
 

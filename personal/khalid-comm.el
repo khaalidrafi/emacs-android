@@ -9,8 +9,8 @@
 ;; - telega comes from MELPA (:ensure t), there is no Guix emacs-telega
 ;;   here; `telega-server-libs-prefix' points at Termux $PREFIX where
 ;;   tdlib/telega-server are installed (`pkg install telega').
-;; - telega-lite (~/telega-lite, synced or git-cloned on the phone) is
-;;   loaded only when present: it is the touch/weak-device tweaks.
+;; - telega-lite is cloned from the Gitea on first use (use-package :vc);
+;;   it holds the touch/weak-device tweaks.
 ;; - The PC's evil key snippets are omitted; meow's motion state on
 ;;   `telega-root-mode' (see khalid-keybindings.el) gives the j/k browsing.
 
@@ -19,16 +19,16 @@
 ;; Common config between desktop and phone
 (khalid/declare-prefix "x" "execute")
 
-;; Lite tweaks add-on, if the repo is present on the device (README.org in
-;; ~/telega-lite explains the no-fork design; the hook keeps telega
-;; unloaded at startup).
-(when (file-directory-p (expand-file-name "~/telega-lite/"))
-  (use-package telega-lite
-    :ensure nil
-    :load-path "~/telega-lite/"
-    :commands (telega-lite-mode telega-touch-mode)
-    :init
-    (add-hook 'telega-load-hook #'telega-lite-mode)))
+;; Lite tweaks: cloned from the Gitea by `:vc' when telega first loads
+;; (README.org in the repo explains the no-fork design; the hook keeps
+;; telega itself unloaded at startup).
+(use-package telega-lite
+  :vc (:url "https://git.khalidrafi.tech/khalidrafi6/telega-lite.git"
+       :rev :newest)
+  :after telega
+  :commands (telega-lite-mode telega-touch-mode)
+  :init
+  (add-hook 'telega-load-hook #'telega-lite-mode))
 
 (use-package telega
   :commands (telega)
@@ -76,6 +76,9 @@
 
   (setopt telega-chat-input-markups '("markdown2" "org"))
 
+  ;; MELPA's telega keeps the adblock minor mode in contrib/, which its
+  ;; autoloads do not cover (Guix's emacs-telega does), so require it.
+  (require 'telega-adblock)
   (telega-adblock-mode 1))
 
 ;; Org link type for telega.  On the PC this comes from Guix's

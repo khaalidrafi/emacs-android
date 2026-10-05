@@ -96,9 +96,13 @@
                          ("gnu" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
 
-;; Bootstrap use-package; skip the install when it is already loadable
-;; (e.g. when batch-compiling this tree on the PC).
-(unless (require 'use-package nil t)
+;; Bootstrap use-package.  Install it from ELPA when it is not installed
+;; yet -- and BEFORE any require: the ELPA copy (2.4.6) supports the `:vc'
+;; keyword natively (`use-package-handler/:vc', built on the Emacs-29+
+;; core `package-vc'), while some builds (Termux's) only ship an older
+;; bundled copy without it.  `package-install' puts the new package first
+;; on `load-path', so the ELPA version is the one that gets required.
+(unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
