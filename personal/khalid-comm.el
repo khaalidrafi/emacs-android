@@ -11,6 +11,8 @@
 ;;   tdlib/telega-server are installed (`pkg install telega').
 ;; - telega-lite is cloned from the Gitea on first use (use-package :vc);
 ;;   it holds the touch/weak-device tweaks.
+;; - telega-org, the Org outline for the chat list, is cloned the same way
+;;   and opened with a command rather than a mode hook (see below).
 ;; - The PC's evil key snippets are omitted; meow's motion state on
 ;;   `telega-root-mode' (see khalid-keybindings.el) gives the j/k browsing.
 ;; - notmuch is configured for mail reading over the Termux notmuch binary.
@@ -91,6 +93,23 @@
   ;; autoloads do not cover (Guix's emacs-telega does), so require it.
   (require 'telega-adblock)
   (telega-adblock-mode 1))
+
+;; The Org chat list: same no-fork, clone-on-demand shape as telega-lite
+;; (`:vc' from the Gitea), and it rides on telega being loaded.  Unlike
+;; telega-lite it is command-driven, not a mode hook: `telega-org-list'
+;; draws the root buffer as an Org outline.  Loading the file is what
+;; installs its own `with-eval-after-load' telega update hooks, so the
+;; autoload is the only setup needed here; leader "tt" (telega group,
+;; next to "tf"/"tk") opens it and "tn" jumps to the next unread chat.
+(use-package telega-org
+  :vc (:url "https://git.khalidrafi.tech/telega-org.git"
+       :rev :newest)
+  :after telega
+  :commands (telega-org-list telega-org-jump-to-unread)
+  :init
+  (khalid/set-leader-keys
+   "tt" 'telega-org-list
+   "tn" 'telega-org-jump-to-unread))
 
 ;; Org link type for telega.  On the PC this comes from Guix's
 ;; emacs-telega-contrib; on the phone it exists only if the MELPA telega
