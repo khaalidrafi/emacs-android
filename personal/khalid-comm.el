@@ -157,9 +157,11 @@ After cloning emacs-purple, build the daemon per its USAGE-ANDROID.org."
 ;; DISCORD via emacs-purple (libpurple elim daemon, built on device)
 ;; ====================
 ;; One-time, in Termux (see ~/comm/emacs-purple/USAGE-ANDROID.org):
-;;   M-x khalid/clone-comm-extras RET           ; clones the private repo
-;;   pkg install libpurple json-glib clang make pkg-config
-;;   cd ~/comm/emacs-purple && bash scripts/compile-termux.sh
+;;   create ~/.git-askpass (must print the PAT when called with "Password")
+;;   M-x khalid/clone-comm-extras RET           ; clones the private repos
+;;   cd ~/comm/emacs-purple && bash scripts/bootstrap-termux.sh
+;;     (libpurple is NOT a Termux package -- the bootstrap builds it from
+;;      source, then the purple-discord plugin + the elim daemon)
 ;; The elisp side below loads only when the checkout exists.  The daemon
 ;; path points at the clone so `libpurple-start' finds the binary.
 (let ((purple-dir (expand-file-name "emacs-purple" khalid-comm-extras-dir)))
