@@ -6,9 +6,12 @@
 ;; now Discord via emacs-purple; mu4e stays on the PC).
 ;;
 ;; Differences from the PC, forced by the device:
-;; - telega comes from MELPA (:ensure t), there is no Guix emacs-telega
-;;   here; `telega-server-libs-prefix' points at Termux $PREFIX where
-;;   tdlib/telega-server are installed (`pkg install telega').
+;; - telega is :vc-pinned below (no Guix emacs-telega here);
+;;   `telega-server-libs-prefix' points at Termux $PREFIX, where tdlib
+;;   rides `pkg install libtd' (1.8.69 ships include/td/telegram/
+;;   td_json_client.h + lib/libtdjson.so -- verified against the
+;;   aarch64 index 2026-11-05; there is NO `telega' package) and
+;;   telega-server is built in Emacs with `M-x telega-server-build'.
 ;; - telega-org, the Org outline for the chat list, is :vc-cloned from
 ;;   its PUBLIC GitHub mirror (pinned to be0b2ab, byte-identical with
 ;;   ORG-CHAT-STANDARD v1.1) and opened with a command rather than a
