@@ -212,3 +212,26 @@ Each item names the file, what to look at, and why it matters.
    fresh (delete =~/.emacs.d.android/elpa/gnu-elpa-keyring-update-*=)
    if the keyring ever expires — the config re-installs it
    automatically on the next startup that needs it.
+** TODO khalid-comm.el — Discord section (added 2026-11-04)
+   Owner order: "They MUST be ready to use on Android Emacs with
+   Termux."  Three things changed; check each on the phone once:
+   1. telega-org :vc moved from the Gitea (Radicle 500 flaps) to the
+      PUBLIC GitHub mirror, pinned =be0b2ab= (byte-identical with
+      ORG-CHAT-STANDARD v1.1 per the 2026-11-04 audit).  Verify the
+      pinned clone installs on first =M-x telega= and =SPC t t= opens
+      the Org list.
+   2. telega-lite + emacs-purple are PRIVATE, so :vc is gone for them:
+      =M-x khalid/clone-comm-extras= clones into =~/comm= (needs the
+      =~/.git-askpass= credentials init.el wires), and their load
+      blocks are guarded by =file-directory-p=.  Verify CI stays green
+      on a fresh clone (no =~/comm= → blocks skip silently) and that
+      the phone picks both up after cloning.
+   3. Discord: daemon path is =~/comm/emacs-purple/elim=; build once
+      with =bash scripts/compile-termux.sh= (bionic build — the
+      glibc =libdiscord.so= in the repo must NEVER be copied over).
+      Leader "d" group: =dd= daemon, =dc= connect, =dm= send, =dl=
+      org list, =dv= org view, =dn= jump unread, =db= daemon buffer.
+      Known gap (also on the PC): the daemon has no list-chats/push
+      actions yet, so the Org list/view run on their seam fixtures
+      until board item 5's live-loop unit lands — sending works via
+      =dm= right after =dc=.
