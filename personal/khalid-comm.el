@@ -1,9 +1,9 @@
-;;; khalid-comm.el --- Telega, Discord & Notmuch for Android  -*- lexical-binding: t -*-
+;;; khalid-comm.el --- Telega, Lark, Discord & Notmuch for Android  -*- lexical-binding: t -*-
 
 ;; -*- mode: emacs-lisp; lexical-binding: t -*-
 
-;; Trimmed port of the PC personal/khalid-comm.el (telega, notmuch and
-;; now Discord via emacs-purple; mu4e stays on the PC).
+;; Trimmed port of the PC personal/khalid-comm.el (telega, lark-org,
+;; notmuch and now Discord via emacs-purple; mu4e stays on the PC).
 ;;
 ;; Differences from the PC, forced by the device:
 ;; - telega is :vc-pinned below (no Guix emacs-telega here);
@@ -13,10 +13,18 @@
 ;;   aarch64 index 2026-11-05; there is NO `telega' package) and
 ;;   telega-server is built in Emacs with `M-x telega-server-build'.
 ;; - telega-org, the Org outline for the chat list, is :vc-cloned from
-;;   its PUBLIC GitHub mirror (pinned to be0b2ab, byte-identical with
-;;   ORG-CHAT-STANDARD v1.1) and opened with a command rather than a
-;;   mode hook (see below).  The Gitea origin flaps (Radicle 500s), so
-;;   nothing here points at it any more.
+;;   its PUBLIC GitHub mirror (pinned 2c9c500, the Android-certification
+;;   HEAD; code unchanged since the ORG-CHAT-STANDARD v1.1 sync) and
+;;   opened with a command rather than a mode hook (see below).  The
+;;   Gitea origin flaps (Radicle 500s), so nothing here points at it
+;;   any more.
+;; - lark-org rides the same law for Lark Messenger (Owner 2026-11-07
+;;   #hq: "update emacs android with comms pkgs"): :vc-pinned from the
+;;   PUBLIC GitHub mirror (f95e4ac, the v0.2 Android-compat law HEAD)
+;;   and opened with commands.  Its backend is the Lark Open Platform
+;;   REST API over url.el -- pure elisp, no daemon, no Termux build.
+;;   One-time Lark app setup: `lark-org-app-id' + the app secret in
+;;   auth-source (see the block below).
 ;; - PRIVATE repos (telega-lite, emacs-purple) cannot ride :vc (anon
 ;;   clones fail, CI included): they are cloned on demand into ~/comm by
 ;;   `khalid/clone-comm-extras' (needs the ~/.git-askpass credentials
@@ -142,13 +150,37 @@ After cloning emacs-purple, build the daemon per its USAGE-ANDROID.org."
 ;; "tf"/"tk") opens it and "tn" jumps to the next unread chat.
 (use-package telega-org
   :vc (:url "https://github.com/khaalidrafi/telega-org.git"
-       :rev "be0b2abc800d5a2b2c736f8f1bee85115c0a2883")
+       :rev "2c9c500a2aade9fe4f106edebc786c390c614145")
   :after telega
   :commands (telega-org-list telega-org-jump-to-unread)
   :init
   (khalid/set-leader-keys
    "tt" 'telega-org-list
    "tn" 'telega-org-jump-to-unread))
+
+;; Lark Messenger: the same Org outline law (ORG-CHAT-STANDARD v1.1)
+;; with its own backend -- the Lark Open Platform REST API over
+;; url.el.  Pure elisp, so unlike Discord it needs NO daemon and NO
+;; Termux build, and like telega-org it rides the public :vc pin
+;; (f95e4ac carries the Android-compat law; see README * Android /
+;; touch).  One-time setup, per README * Setup: create a Lark app with
+;; im:message scopes, set `lark-org-app-id', and store the app secret
+;; in auth-source:
+;;   machine lark-org login app-secret password <secret>
+;; The secret and the cached tenant token stay in memory only.  Until
+;; the app id is set, `lark-org' fails loudly at the first call -- it
+;; never half-opens a broken list.  Leader "l" group: "ll" opens the
+;; chat list, "ln" jumps to the first unread entry (list or view); the
+;; list's own verbs (RET/g/j/n/p/q + tap) come with the package.
+(use-package lark-org
+  :vc (:url "https://github.com/khaalidrafi/lark-org.git"
+       :rev "f95e4acc596140818c41096a9ccfd10433b14f22")
+  :commands (lark-org lark-org-jump-unread)
+  :init
+  (khalid/declare-prefix "l" "lark")
+  (khalid/set-leader-keys
+   "ll" 'lark-org
+   "ln" 'lark-org-jump-unread))
 
 ;; Org link type for telega.  On the PC this comes from Guix's
 ;; emacs-telega-contrib; on the phone it exists only if the MELPA telega

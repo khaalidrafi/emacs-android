@@ -235,3 +235,22 @@ Each item names the file, what to look at, and why it matters.
       actions yet, so the Org list/view run on their seam fixtures
       until board item 5's live-loop unit lands — sending works via
       =dm= right after =dc=.
+** TODO khalid-comm.el — Lark wired + telega-org pin bumped (added 2026-11-07)
+   Owner order: "If all done, update emacs android with comms pkgs."
+   The comms roster on the phone is now telega-org + lark-org +
+   emacs-purple + telega + notmuch.  Check on the phone once:
+   1. lark-org is :vc-pinned =f95e4ac= (v0.2 Android-compat law HEAD)
+      from the PUBLIC GitHub mirror — anon clone verified 2026-11-07.
+      Leader "l" group: =ll= opens the Lark chat list, =ln= jumps to
+      the first unread.  NO daemon/Termux build needed (pure url.el).
+      One-time Lark setup: =lark-org-app-id= + auth-source secret
+      (=machine lark-org login app-secret password <secret>=); until
+      then =ll= fails loudly at the token call — expected, not a bug.
+      Touch adaptation is in-package (=lark-org-adapt-for-touch= t).
+   2. telega-org :vc pin moved =be0b2ab= -> =2c9c500= (the
+      Android-certification HEAD; zero code change since the v1.1
+      sync, the bump only carries the cert record).  Verify =SPC t t=
+      still opens the Org list after the pin refetch.
+   3. Local check done WITHOUT emacs (sandbox toolchain wiped): paren
+      balance + pin sanity verified by script; first on-device boot is
+      the real test — watch the =*VC*= buffer on the first =ll=/=tt=.
