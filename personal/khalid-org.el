@@ -6,6 +6,8 @@
 ;; out: no capture templates, no custom agenda commands, no ~/org/gtd/
 ;; agenda-file list.  What remains is plain Org behaviour, the org-docs
 ;; reader, and the Android-only bits (tel: dialing, org-contacts helpers).
+;; New on the phone (not on the PC): actlog, the StayFree-style activity
+;; tracker that journals Emacs time as Org clock data.
 ;; Also still dropped as before (heavy or PC-only): org-roam,
 ;; org-pomodoro, org-alert/habit-stats, activitywatch views, the "c"
 ;; contacts capture template, org-appear.
@@ -133,6 +135,35 @@ custom agenda commands) are gone with the GTD layer."
   ;; `dr'/'dR'/'de'/'dl' read the doc-local recent files list, which only
   ;; fills up while `org-docs-recentf-mode' records visits (PC does the same).
   (org-docs-recentf-mode +1))
+
+;; ====================
+;; ACTLOG (StayFree replacement: activity tracking -> Org clock data)
+;; ====================
+
+;; actlog-mode samples the front buffer every 15 s and journals wall
+;; time as ordinary Org CLOCK data under org-directory/actlog/ -- one
+;; entry per activity (project, Files:dir or Emacs:mode), one CLOCK
+;; line per session -- so org-clock-report and the agenda read the
+;; journal with actlog itself unloaded.  Suspension gaps > 15 min are
+;; never credited (no phantom pocket hours); state survives hard
+;; process kills via a 5-min flush.  Honest scope: Android sandboxes
+;; UsageStatsManager, so device-wide per-app usage (the whole StayFree
+;; report) is not reachable from Elisp -- this tracks where the Emacs
+;; hours go, fully offline.
+(use-package actlog
+  :vc (:url "https://github.com/khaalidrafi/actlog.git"
+       :rev "79149388e6c35cdb32fdafe3d4f57ea1688277a9")
+  :after org
+  :commands (actlog-report actlog-open-journal actlog-toggle)
+  :custom
+  (actlog-org-dir (expand-file-name "actlog/" org-directory))
+  :init
+  (khalid/set-leader-keys
+   "oa" 'actlog-report
+   "oj" 'actlog-open-journal
+   "oT" 'actlog-toggle)
+  :config
+  (actlog-mode +1))
 
 ;; ====================
 ;; ANDROID EXTRAS (from ~/emacs-android/khalid-common.el)

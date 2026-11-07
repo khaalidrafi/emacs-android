@@ -254,3 +254,24 @@ Each item names the file, what to look at, and why it matters.
    3. Local check done WITHOUT emacs (sandbox toolchain wiped): paren
       balance + pin sanity verified by script; first on-device boot is
       the real test — watch the =*VC*= buffer on the first =ll=/=tt=.
+** DONE actlog wired — StayFree replacement (added 2026-11-07)
+   Owner order: "Can you make a pkg to track activities with Org
+   integration on Emacs Android, so that I can replace StayFree?"
+   New package =actlog= (khaalidrafi/actlog v0.1, :vc-pinned
+   7914938) inside khalid-org.el: =actlog-mode= samples the front
+   buffer every 15 s and journals Org CLOCK data under
+   ~/org/actlog/YYYY-MM-DD.org — one entry per activity (project /
+   Files:dir / Emacs:mode), one CLOCK line per session.  Leader keys:
+   =oa= report, =oj= journal, =oT= pause; mode line shows " A:<key>
+   <total>".  Check on the phone once:
+   1. First startup pulls the :vc clone (watch the *VC* buffer),
+      then =SPC o a= shows the report table and the mode line total
+      starts moving.
+   2. =org-clock-report= on a day file renders a real clock table.
+   3. Screen off >15 min → gap discarded (max-gap law, no phantom
+      hours); force-stop + relaunch → state resumes, ≤5 min loss.
+   Honest scope: Android hides UsageStatsManager from apps, so this
+   replaces StayFree's Emacs-side tracking, not whole-device stats.
+   Gates: byte 0/0 + ERT 22/22 on emacs 30.1 (sandbox); GLM-5.3
+   reviewer pass queued for the 2026-11-08 quota reset
+   (author≠reviewer law — author was z.ai-agent).
