@@ -150,13 +150,14 @@ custom agenda commands) are gone with the GTD layer."
 ;; are never credited (no phantom pocket hours); state survives hard
 ;; process kills via a 5-min flush.  The same package also carries the
 ;; Android module (Usage Access screen-time import from a StayFree
-;; export: M-x org-activity-android-import) and a Linux system-window
-;; source; on the phone only the engine part runs.  Honest scope:
+;; export: M-x org-activity-android-refresh, newest CSV in Download/)
+;; and a Linux system-window source; on the phone only the engine part
+;; runs.  Honest scope:
 ;; Android sandboxes UsageStatsManager, so device-wide per-app usage
 ;; needs the one export step -- documented in the package README.
 (use-package org-activity
   :vc (:url "https://github.com/khaalidrafi/org-activity.git"
-       :rev "64f25de18af591d7a3b0d84ed6ecc45e33d3654d")
+       :rev "e52046e22b6ef8ebe01bc4639c191119cc83d9fc")
   :after org
   :commands (org-activity-report org-activity-open-journal
                                 org-activity-toggle)

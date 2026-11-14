@@ -275,3 +275,32 @@ Each item names the file, what to look at, and why it matters.
    Gates: byte 0/0 + ERT 22/22 on emacs 30.1 (sandbox); GLM-5.3
    reviewer pass queued for the 2026-11-08 quota reset
    (author≠reviewer law — author was z.ai-agent).
+** DONE org-activity replaces actlog on the phone (added 2026-11-15)
+   Completes the 2026-11-14 "Complete ALL Emacs" order: drop the
+   separate Android usage tracker, ship one cross-platform package.
+   Member commit 1a8f423 wired =org-activity= (khaalidrafi/
+   org-activity, :vc law as telega-org/lark-org) in khalid-org.el:
+   same engine (15 s sampling -> Org CLOCK journals; max-gap and
+   flush laws unchanged), new home ~/org/org-activity/ (old
+   ~/org/actlog/*.org stay valid Org — move them in for one
+   history).  Leader keys unchanged: =oa= report, =oj= journal,
+   =oT= pause.  Lead review pass (this commit):
+   1. Command-name fix: the comment cited =M-x
+      org-activity-android-import=, which does not exist — the
+      real ones are =org-activity-android-refresh= (newest StayFree
+      export in Download/ -> org-activity/android.org, idempotent
+      day tables) and =org-activity-android-import-file=.  Same bug
+      fixed in the package README (org-activity repo).
+   2. Pin bumped 64f25de -> e52046e so the clone carries its
+      LICENSE file.
+   Check on the phone once:
+   1. First startup pulls the :vc clone; =SPC o a= shows the report
+      and the mode line (" OrgAct") starts moving.
+   2. =M-x org-activity-android-refresh= after a StayFree export
+      fills android.org without duplicating rows on re-import.
+   3. Old actlog gap law intact: screen off >15 min not credited.
+   Follow-ups queued: "superseded by org-activity" notes in the
+   actlog + android-usage.el READMEs (their own repos).
+   Gates: org-activity CI green on emacs 30.1 (byte-compile with
+   warnings-as-errors + ERT) on both commits; this sandbox has no
+   emacs binary, so the config diff was checked by inspection.
