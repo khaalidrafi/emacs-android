@@ -137,33 +137,38 @@ custom agenda commands) are gone with the GTD layer."
   (org-docs-recentf-mode +1))
 
 ;; ====================
-;; ACTLOG (StayFree replacement: activity tracking -> Org clock data)
+;; ORG-ACTIVITY (ActivityWatch alternative: activity tracking -> Org)
 ;; ====================
 
-;; actlog-mode samples the front buffer every 15 s and journals wall
-;; time as ordinary Org CLOCK data under org-directory/actlog/ -- one
+;; The Android usage tracker moved OUT of this config and into its own
+;; package, org-activity (Owner order, 2026-11-14).  org-activity-mode
+;; samples the front buffer every 15 s and journals wall time as
+;; ordinary Org CLOCK data under org-directory/org-activity/ -- one
 ;; entry per activity (project, Files:dir or Emacs:mode), one CLOCK
 ;; line per session -- so org-clock-report and the agenda read the
-;; journal with actlog itself unloaded.  Suspension gaps > 15 min are
-;; never credited (no phantom pocket hours); state survives hard
-;; process kills via a 5-min flush.  Honest scope: Android sandboxes
-;; UsageStatsManager, so device-wide per-app usage (the whole StayFree
-;; report) is not reachable from Elisp -- this tracks where the Emacs
-;; hours go, fully offline.
-(use-package actlog
-  :vc (:url "https://github.com/khaalidrafi/actlog.git"
-       :rev "79149388e6c35cdb32fdafe3d4f57ea1688277a9")
+;; journal with org-activity itself unloaded.  Suspension gaps > 15 min
+;; are never credited (no phantom pocket hours); state survives hard
+;; process kills via a 5-min flush.  The same package also carries the
+;; Android module (Usage Access screen-time import from a StayFree
+;; export: M-x org-activity-android-import) and a Linux system-window
+;; source; on the phone only the engine part runs.  Honest scope:
+;; Android sandboxes UsageStatsManager, so device-wide per-app usage
+;; needs the one export step -- documented in the package README.
+(use-package org-activity
+  :vc (:url "https://github.com/khaalidrafi/org-activity.git"
+       :rev "64f25de18af591d7a3b0d84ed6ecc45e33d3654d")
   :after org
-  :commands (actlog-report actlog-open-journal actlog-toggle)
+  :commands (org-activity-report org-activity-open-journal
+                                org-activity-toggle)
   :custom
-  (actlog-org-dir (expand-file-name "actlog/" org-directory))
+  (org-activity-org-dir (expand-file-name "org-activity/" org-directory))
   :init
   (khalid/set-leader-keys
-   "oa" 'actlog-report
-   "oj" 'actlog-open-journal
-   "oT" 'actlog-toggle)
+   "oa" 'org-activity-report
+   "oj" 'org-activity-open-journal
+   "oT" 'org-activity-toggle)
   :config
-  (actlog-mode +1))
+  (org-activity-mode +1))
 
 ;; ====================
 ;; ANDROID EXTRAS (from ~/emacs-android/khalid-common.el)
