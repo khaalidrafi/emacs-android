@@ -47,7 +47,7 @@
   (setopt tool-bar-position 'bottom)
   (modifier-bar-mode 1))
 (menu-bar-mode -1)
-(scroll-bar-mode -1)
+(when (fboundp (quote scroll-bar-mode)) (scroll-bar-mode -1))
 
 ;; Wrapped long lines stay readable on a narrow screen.
 (global-visual-line-mode 1)

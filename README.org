@@ -1,0 +1,50 @@
+#+title: emacs-android — my Emacs configuration
+#+subtitle: One init for a Linux desktop and an Android phone
+
+* What this is
+
+A personal Emacs configuration, not a package.  =early-init.el= sets up
+the package system; =init.el= layers the editor on top; =personal/= holds
+the modules that are mine rather than generic:
+
+| File                     | What it does                          |
+|--------------------------+---------------------------------------|
+| =init.el=                | startup, UI, completion, editing       |
+| =early-init.el=          | package system and GC before startup   |
+| =personal/khalid-org.el= | Org capture, agenda and file layout    |
+| =personal/khalid-llm.el= | the LLM/agent entry points             |
+| =personal/khalid-comm.el= | telega and chat wiring                |
+| =personal/khalid-keybindings.el= | the keymap I actually use     |
+
+* How it loads
+
+The configuration is written for an interactive session.  It expects
+
+- a graphical frame (=scroll-bar-mode= and friends are guarded, so a
+  headless load no longer dies on them), and
+- sibling checkouts on =load-path= — =org-import=, =agent-org= and the
+  rest of the packages in this account.
+
+That is why CI does not boot it: a runner has neither.  Loading it fully
+there fails on the first missing sibling, which says nothing about the
+configuration's correctness.
+
+* What CI does check
+
+=make=-less and dependency-free: every tracked =.el= is byte-compiled
+with =use-package= installed, and the job fails if any file produced no
+=.elc=.  Compilation is the check that catches real mistakes in a config
+— wrong arity, void variables, renamed functions — without needing a
+display or the sibling repos.  Warnings are reported but not fatal, since
+a config legitimately refers to packages a runner does not have.
+
+* Related
+
+- =khaalidrafi/org-activity=, =khaalidrafi/agent-team.el=, and
+  =khaalidrafi/elwidget= are the packages this config loads.
+- =khaalidrafi/emacshell= is the phone app these settings are tuned for
+  (GNU Emacs plus a Unix environment in one APK).
+
+* License
+
+GPL-3.0-or-later.
