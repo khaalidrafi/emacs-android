@@ -225,8 +225,49 @@ After cloning emacs-purple, build the daemon per its USAGE-ANDROID.org."
      "db" 'libpurple-show-chat-buffer)))
 
 ;; ====================
-;; NOTMUCH (Android email client)
+;; NOTMUCH over IMAP (Android email client)
 ;; ====================
+
+;; Mail on the phone is NOTMUCH + IMAP (Owner order 2026-11-18: "I use
+;; notmuch with IMAP, not Gnus"), in three pieces:
+;;
+;;   1. mbsync (isync) pulls IMAP into the ~/mail Maildirs
+;;      (Termux: `pkg install mbsync notmuch`; config below).
+;;   2. notmuch indexes ~/mail and is the reader (this section).
+;;   3. smtpmail sends through the account's SMTP server.
+;;
+;; Credentials for both mbsync and smtpmail live in ~/.authinfo
+;; (chmod 600); mbsync reads them via PassCmd (config template in
+;; ~/.mbsyncrc below).  The Emacs side stays version-controlled here;
+;; only ~/.mbsyncrc and ~/.notmuch-config are per-device files.
+;;
+;; ~/.mbsyncrc template (one account; extend with more Channels):
+;;
+;;   IMAPAccount main
+;;   Host imap.example.com
+;;   User you@example.com
+;;   PassCmd "python3 -c 'import netrc; print(netrc.netrc().hosts[\"imap.example.com\"][2])'"
+;;   SSLType IMAPS
+;;
+;;   IMAPStore main-remote
+;;   Account main
+;;
+;;   MaildirStore main-local
+;;   Path ~/mail/
+;;   Inbox ~/mail/INBOX
+;;   SubFolders Verbatim
+;;
+;;   Channel main
+;;   Far :main-remote:
+;;   Near :main-local:
+;;   Patterns *
+;;   Create Both
+;;   Expunge Both
+;;   SyncState *
+;;
+;; ~/.notmuch-config: database.path=~/mail (or `notmuch new` once
+;; inside ~/mail and it writes the config).  Then M-x khalid/mail-sync
+;; or the "m S" leader key pulls + indexes; reading is fully offline.
 (use-package notmuch
   :commands (notmuch notmuch-mua-new-mail)
   :init
@@ -235,11 +276,57 @@ After cloning emacs-purple, build the daemon per its USAGE-ANDROID.org."
    "mm" 'notmuch
    "mc" 'notmuch-mua-new-mail
    "ms" 'notmuch-search
-   "mf" 'notmuch-refresh-this-buffer)
+   "mf" 'notmuch-refresh-this-buffer
+   "mS" 'khalid/mail-sync
+   "mN" 'khalid/mail-new)
   :config
-  (setq notmuch-search-oldest-first nil)
+  (setq notmuch-search-oldest-first nil
+        ;; Folder names in the search/tree views.
+        notmuch-search-result-format
+        '(("date" . "%12s ") ("authors" . "%-20s ")
+          ("subject" . "%s ") ("tags" . "(%s)"))
+        ;; Fcc into the sent folder mbsync keeps in sync.
+        notmuch-fcc-dirs "sent"
+        notmuch-show-logo nil)
   (with-eval-after-load 'org
     (require 'ol-notmuch nil t)))
+
+(defun khalid/mail-sync ()
+  "Pull IMAP into ~/mail (mbsync) and index it (notmuch new)."
+  (interactive)
+  (let ((mbsync (executable-find "mbsync"))
+        (notmuch (executable-find "notmuch")))
+    (unless mbsync
+      (user-error "mbsync not on PATH; pkg install mbsync (Termux)"))
+    (unless notmuch
+      (user-error "notmuch not on PATH; pkg install notmuch (Termux)"))
+    (message "mbsync -a ...")
+    (set-process-sentinel
+     (start-process "khalid-mail-sync" "*khalid-mail-sync*"
+                    mbsync "-a")
+     (lambda (_proc _event)
+       (message "mbsync done; notmuch new ...")
+       (start-process "khalid-notmuch-new" "*khalid-mail-sync*"
+                      notmuch "new")))))
+
+(defun khalid/mail-new ()
+  "Run `notmuch new' alone (quick index refresh after file changes)."
+  (interactive)
+  (let ((notmuch (executable-find "notmuch")))
+    (unless notmuch
+      (user-error "notmuch not on PATH; pkg install notmuch (Termux)"))
+    (start-process "khalid-notmuch-new" "*khalid-mail-sync*"
+                   notmuch "new")))
+
+;; Sending: smtpmail over the account's submission server, SSL/465,
+;; credentials from ~/.authinfo (machine smtp.example.com login
+;; you@example.com port 465 password APP-PASSWORD).
+(with-eval-after-load 'message
+  (setq message-send-mail-function 'smtpmail-send-it
+        smtpmail-smtp-server "smtp.example.com"   ; per-device; ~/.authinfo
+        smtpmail-smtp-service 465
+        smtpmail-stream-type 'ssl
+        smtpmail-smtp-user nil))                ; from ~/.authinfo
 
 (provide 'khalid-comm)
 ;;; khalid-comm.el ends here

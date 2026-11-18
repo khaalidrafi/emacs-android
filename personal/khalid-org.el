@@ -152,12 +152,14 @@ custom agenda commands) are gone with the GTD layer."
 ;; Android module (Usage Access screen-time import from a StayFree
 ;; export: M-x org-activity-android-refresh, newest CSV in Download/)
 ;; and a Linux system-window source; on the phone only the engine part
-;; runs.  Honest scope:
-;; Android sandboxes UsageStatsManager, so device-wide per-app usage
-;; needs the one export step -- documented in the package README.
+;; runs.  Honest scope: device-wide per-app screen time needs Usage
+;; Access; `org-activity-android-refresh' prefers the native pull
+;; (`android-usage-stats', available once the patched APK lane lands
+;; -- see emacshell patches/emacs/) and falls back to a StayFree
+;; export on stock builds (NATIVE-USAGE.org in the package).
 (use-package org-activity
   :vc (:url "https://github.com/khaalidrafi/org-activity.git"
-       :rev "e52046e22b6ef8ebe01bc4639c191119cc83d9fc")
+       :rev "ff20bd0e762ae9d50d1dd205c0f974e19ac44324")
   :after org
   :commands (org-activity-report org-activity-open-journal
                                 org-activity-toggle)
@@ -170,6 +172,34 @@ custom agenda commands) are gone with the GTD layer."
    "oT" 'org-activity-toggle)
   :config
   (org-activity-mode +1))
+
+;; ====================
+;; HABITS (loophabits — Loop Habit Tracker on Org files)
+;; ====================
+
+;; The habit tracker lives HERE, not in the emacshell APK (Owner order
+;; 2026-11-18: "Personal stuffs belong to emacs-android").  loophabits
+;; is ALL of Loop Habit Tracker (iSoron/uhabits) on one plain Org
+;; file: yes/no, measurable and at-most habits, flexible schedules,
+;; the real Loop score and streak math, per-weekday stats, a 365-day
+;; history grid, reminders, CSV/JSON export.  The emacshell
+;; org-habits home-screen widget renders this file straight onto the
+;; home screen with tap-to-check marks.
+(use-package loophabits
+  :vc (:url "https://github.com/khaalidrafi/loophabits.git"
+       :rev "f7540b97e1f7eb238c3ecf09deffa22539a9b3e6")
+  :commands (loophabits loophabits-start-reminders)
+  :custom
+  (loophabits-file (expand-file-name "habits.org" org-directory))
+  :init
+  (khalid/set-leader-keys
+   "oL" 'loophabits                ; "oh" is org-goto; L for Loop
+   "oR" 'loophabits-start-reminders)
+  :config
+  ;; Reminders ride loophabits-notify-function (message + optional
+  ;; Android notification); the checker runs every 60 s while Emacs
+  ;; is alive, same as the widget poller.
+  (loophabits-start-reminders))
 
 ;; ====================
 ;; ANDROID EXTRAS (from ~/emacs-android/khalid-common.el)
